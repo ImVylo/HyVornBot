@@ -72,22 +72,22 @@ A feature-rich, modular Discord bot combining the best of MEE6 and RedBot with e
 - Help system
 - About and ping commands
 
-#### 📝 Requests
-- User request system
-- Request management
-
-#### 🎫 Ticket System
-- Create support tickets
-- Ticket management and logging
-- Configurable support roles
-- Auto-close functionality
-- Ticket statistics
+#### 📝 Unified Request System
+- **Tickets** - Support ticket creation and management
+- **Suggestions** - Community suggestion system with voting
+- **Bug Reports** - Report bugs with detailed information
+- **Player Reports** - Report rule-breaking players
+- **Staff Applications** - Multi-page application system
+- Request tracking and management
+- Status updates and notifications
+- Configurable categories and roles
 
 #### 🎤 Voice Features
 - Temporary voice channels
 - Auto-delete when empty
 - User ownership and control
 - Custom naming formats
+- Lobby-based creation system
 
 #### 🎂 Birthday System
 - Birthday tracking and reminders
@@ -95,13 +95,7 @@ A feature-rich, modular Discord bot combining the best of MEE6 and RedBot with e
 - Optional birthday role
 - Upcoming birthday list
 - Age calculation
-
-#### 💡 Suggestions
-- Community suggestion system
-- Voting with reactions
-- Suggestion status management (approve/deny/consider/implement)
-- Automatic threading for discussions
-- Suggestion statistics
+- Hourly birthday checks
 
 ## Installation
 
@@ -243,10 +237,8 @@ HyVornBot/
     │   ├── Leveling.js
     │   ├── Logging.js
     │   ├── ReactionRoles.js
-    │   ├── Requests.js
-    │   ├── Suggestions.js
+    │   ├── Requests.js       # Unified request system (tickets, suggestions, applications)
     │   ├── TempVoice.js
-    │   ├── Tickets.js
     │   └── Welcome.js
     └── utils/           # Utility functions
 ```
@@ -256,6 +248,21 @@ HyVornBot/
 - **discord.js** (v14.14.1) - Discord API library
 - **better-sqlite3** (v9.4.3) - SQLite database
 - **gamedig** (v5.0.0) - Game server query library
+
+## Recent Updates
+
+### Latest Changes
+- ✅ Fixed module loading for Birthdays and TempVoice systems
+- ✅ Unified Tickets and Suggestions into comprehensive Requests module
+- ✅ Added robust error handling for expired Discord interactions
+- ✅ Improved bot stability - no more crashes from interaction timeouts
+- ✅ Enhanced database access patterns for better reliability
+
+### Features Added
+- 🎂 Birthday tracking with automatic announcements
+- 🎤 Temporary voice channels that auto-delete
+- 📝 Unified request system (tickets, suggestions, bug reports, applications)
+- 🎮 Game server status integration via plugin system
 
 ## Support
 
