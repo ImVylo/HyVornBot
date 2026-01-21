@@ -247,14 +247,31 @@ class CommandHandler {
       this.client.stats.commandsRun++;
       await command.execute(interaction, this.client);
     } catch (error) {
+      // Handle Discord API errors for expired/unknown interactions
+      if (error.code === 10062 || error.code === 40060) {
+        // 10062: Unknown interaction (expired)
+        // 40060: Interaction has already been acknowledged
+        this.log.warn(`Interaction expired for command ${command.data.name}: ${error.message}`);
+        return;
+      }
+
       this.log.error(`Error executing slash command ${command.data.name}:`, error);
 
       const errorResponse = { embeds: [errorEmbed('An error occurred while executing this command.')], flags: MessageFlags.Ephemeral };
 
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp(errorResponse);
-      } else {
-        await interaction.reply(errorResponse);
+      try {
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp(errorResponse);
+        } else {
+          await interaction.reply(errorResponse);
+        }
+      } catch (replyError) {
+        // Silently fail if we can't send error message due to expired interaction
+        if (replyError.code === 10062 || replyError.code === 40060) {
+          this.log.warn(`Could not send error message - interaction expired`);
+        } else {
+          this.log.error(`Failed to send error response:`, replyError);
+        }
       }
     }
   }

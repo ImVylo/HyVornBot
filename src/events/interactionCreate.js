@@ -6,29 +6,42 @@ export default {
   once: false,
 
   async execute(client, interaction) {
-    // Handle slash commands
-    if (interaction.isChatInputCommand()) {
-      return client.commandHandler.handleSlashCommand(interaction);
-    }
+    try {
+      // Handle slash commands
+      if (interaction.isChatInputCommand()) {
+        return await client.commandHandler.handleSlashCommand(interaction);
+      }
 
-    // Handle autocomplete
-    if (interaction.isAutocomplete()) {
-      return handleAutocomplete(client, interaction);
-    }
+      // Handle autocomplete
+      if (interaction.isAutocomplete()) {
+        return await handleAutocomplete(client, interaction);
+      }
 
-    // Handle buttons
-    if (interaction.isButton()) {
-      return handleButton(client, interaction);
-    }
+      // Handle buttons
+      if (interaction.isButton()) {
+        return await handleButton(client, interaction);
+      }
 
-    // Handle select menus
-    if (interaction.isStringSelectMenu()) {
-      return handleSelectMenu(client, interaction);
-    }
+      // Handle select menus
+      if (interaction.isStringSelectMenu()) {
+        return await handleSelectMenu(client, interaction);
+      }
 
-    // Handle modals
-    if (interaction.isModalSubmit()) {
-      return handleModal(client, interaction);
+      // Handle modals
+      if (interaction.isModalSubmit()) {
+        return await handleModal(client, interaction);
+      }
+    } catch (error) {
+      // Handle Discord API errors for expired/unknown interactions
+      if (error.code === 10062 || error.code === 40060) {
+        // 10062: Unknown interaction (expired)
+        // 40060: Interaction has already been acknowledged
+        client.logger.warn('Interaction', `Interaction expired or already acknowledged: ${error.message}`);
+        return;
+      }
+
+      // Log other errors but don't crash
+      client.logger.error('Interaction', 'Error handling interaction:', error);
     }
   }
 };
