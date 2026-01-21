@@ -123,7 +123,11 @@ class HyVornClient extends Client {
       'Welcome',
       'ReactionRoles',
       'Giveaways',
-      'Requests'
+      'Requests',
+      'Tickets',
+      'TempVoice',
+      'Birthdays',
+      'Suggestions'
     ];
 
     for (const moduleName of moduleNames) {
@@ -132,6 +136,11 @@ class HyVornClient extends Client {
         if (module.default) {
           const instance = new module.default(this);
           this.modules.set(moduleName.toLowerCase(), instance);
+
+          // Add convenient accessor properties
+          const propertyName = moduleName.charAt(0).toLowerCase() + moduleName.slice(1);
+          this[propertyName] = instance;
+
           if (typeof instance.init === 'function') {
             await instance.init();
           }

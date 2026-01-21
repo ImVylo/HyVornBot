@@ -50,6 +50,7 @@ A feature-rich, modular Discord bot combining the best of MEE6 and RedBot with e
 - Random facts
 - Jokes and quotes
 - Meme generator
+- Social interactions (hug, pat, kiss, slap, highfive, poke)
 
 #### 🔧 Utility
 - Server and user info
@@ -74,6 +75,33 @@ A feature-rich, modular Discord bot combining the best of MEE6 and RedBot with e
 #### 📝 Requests
 - User request system
 - Request management
+
+#### 🎫 Ticket System
+- Create support tickets
+- Ticket management and logging
+- Configurable support roles
+- Auto-close functionality
+- Ticket statistics
+
+#### 🎤 Voice Features
+- Temporary voice channels
+- Auto-delete when empty
+- User ownership and control
+- Custom naming formats
+
+#### 🎂 Birthday System
+- Birthday tracking and reminders
+- Automatic birthday announcements
+- Optional birthday role
+- Upcoming birthday list
+- Age calculation
+
+#### 💡 Suggestions
+- Community suggestion system
+- Voting with reactions
+- Suggestion status management (approve/deny/consider/implement)
+- Automatic threading for discussions
+- Suggestion statistics
 
 ## Installation
 
@@ -187,13 +215,17 @@ HyVornBot/
 └── src/
     ├── commands/         # Command files
     │   ├── admin/
+    │   ├── birthdays/
     │   ├── economy/
     │   ├── fun/
     │   ├── giveaway/
     │   ├── leveling/
     │   ├── moderation/
     │   ├── requests/
-    │   └── utility/
+    │   ├── suggestions/
+    │   ├── tickets/
+    │   ├── utility/
+    │   └── voice/
     ├── core/            # Core bot systems
     │   ├── Client.js
     │   ├── CommandHandler.js
@@ -205,12 +237,16 @@ HyVornBot/
     ├── events/          # Discord event handlers
     ├── modules/         # Feature modules
     │   ├── AutoMod.js
+    │   ├── Birthdays.js
     │   ├── Economy.js
     │   ├── Giveaways.js
     │   ├── Leveling.js
     │   ├── Logging.js
     │   ├── ReactionRoles.js
     │   ├── Requests.js
+    │   ├── Suggestions.js
+    │   ├── TempVoice.js
+    │   ├── Tickets.js
     │   └── Welcome.js
     └── utils/           # Utility functions
 ```
