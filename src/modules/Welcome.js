@@ -49,21 +49,24 @@ class Welcome {
   async sendWelcomeMessage(member, settings) {
     const welcomeSettings = settings.welcome || {};
 
-    if (!settings.welcomeChannel) return;
+    // Check if welcome messages are enabled
+    if (welcomeSettings.welcomeEnabled === false) return;
 
-    const channel = member.guild.channels.cache.get(settings.welcomeChannel);
+    if (!welcomeSettings.channelId) return;
+
+    const channel = member.guild.channels.cache.get(welcomeSettings.channelId);
     if (!channel) return;
 
     try {
       const message = this.formatMessage(
-        welcomeSettings.message || 'Welcome to {server}, {user}!',
+        welcomeSettings.welcomeMessage || 'Welcome to {server}, {user}!',
         member
       );
 
       if (welcomeSettings.useEmbed !== false) {
         const embed = new EmbedBuilder()
           .setColor(welcomeSettings.color || Colors.SUCCESS)
-          .setTitle(welcomeSettings.title || `${Emojis.SUCCESS} Welcome!`)
+          .setTitle(welcomeSettings.welcomeTitle || `${Emojis.SUCCESS} Welcome!`)
           .setDescription(message)
           .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 256 }))
           .setFooter({ text: `Member #${member.guild.memberCount}` })
@@ -88,23 +91,26 @@ class Welcome {
   async sendLeaveMessage(member, settings) {
     const welcomeSettings = settings.welcome || {};
 
-    if (!welcomeSettings.leaveMessage) return;
+    // Check if goodbye messages are enabled
+    if (welcomeSettings.goodbyeEnabled === false) return;
+
+    if (!welcomeSettings.goodbyeMessage) return;
 
     const channel = member.guild.channels.cache.get(
-      welcomeSettings.leaveChannel || settings.welcomeChannel
+      welcomeSettings.channelId
     );
     if (!channel) return;
 
     try {
       const message = this.formatMessage(
-        welcomeSettings.leaveMessage || '{user} has left the server.',
+        welcomeSettings.goodbyeMessage || '{user} has left the server.',
         member
       );
 
       if (welcomeSettings.useEmbed !== false) {
         const embed = new EmbedBuilder()
           .setColor(Colors.ERROR)
-          .setTitle(`${Emojis.ERROR} Goodbye`)
+          .setTitle(welcomeSettings.goodbyeTitle || `${Emojis.ERROR} Goodbye`)
           .setDescription(message)
           .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
           .setFooter({ text: `Members: ${member.guild.memberCount}` })

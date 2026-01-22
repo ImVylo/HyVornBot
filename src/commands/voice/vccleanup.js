@@ -17,7 +17,7 @@ export default {
       await msg.edit(`✅ Cleaned up ${cleaned} orphaned temporary voice channel(s).`);
     } catch (error) {
       await msg.edit('❌ Failed to clean up channels.');
-      console.error(error);
+      client.logger.error('VCCleanup', 'Failed to cleanup channels:', error);
     }
   },
 };

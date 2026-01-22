@@ -91,7 +91,7 @@ class AutoMod {
    * Check for Discord invites
    */
   async checkInvites(message, settings) {
-    if (!settings.antiInvite) return { blocked: false };
+    if (!settings.antiInvites) return { blocked: false };
 
     const inviteRegex = /(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/[^\s]+/gi;
 
@@ -119,7 +119,7 @@ class AutoMod {
    * Check for links
    */
   async checkLinks(message, settings) {
-    if (!settings.antiLink) return { blocked: false };
+    if (!settings.antiLinks) return { blocked: false };
 
     const linkRegex = /https?:\/\/[^\s]+/gi;
     const links = message.content.match(linkRegex);

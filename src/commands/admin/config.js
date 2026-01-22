@@ -282,7 +282,7 @@ export default {
               },
               {
                 name: 'Welcome Messages',
-                value: settings.welcomeChannel ? `<#${settings.welcomeChannel}>` : 'Disabled',
+                value: settings.welcome?.channelId ? `<#${settings.welcome.channelId}>` : 'Disabled',
                 inline: true
               }
             )
@@ -672,8 +672,8 @@ function formatNotifications(settings) {
   if (settings.levelUpChannel) {
     notifications.push(`Level-Up: ${settings.levelUpChannel === 'current' ? 'Current' : `<#${settings.levelUpChannel}>`}`);
   }
-  if (settings.welcomeChannel) {
-    notifications.push(`Welcome: <#${settings.welcomeChannel}>`);
+  if (settings.welcome?.channelId) {
+    notifications.push(`Welcome: <#${settings.welcome.channelId}>`);
   }
 
   return notifications.length > 0 ? notifications.join('\n') : 'None configured';
