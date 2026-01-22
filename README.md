@@ -123,6 +123,19 @@ A feature-rich, modular Discord bot combining the best of MEE6 and RedBot with e
 
 **Factions included:** Kweebecs, Ferans, Trorks, Scaraks, Outlanders, Slothians, Fauns, Klops
 
+#### 🎭 Community Plugin
+- **RPG System** - Character classes, adventures, dungeons, and boss fights
+- **Pet Collection** - Hunt, collect, level up, and evolve 15+ unique pets
+- **Card Collecting** - Open packs, trade cards, complete collections
+- **Reputation System** - Give and receive karma with leaderboards
+- **Achievements** - 15 unlockable badges with coin rewards
+- **Starboard** - Automatically highlight popular messages
+- **Time Capsules** - Send messages to the future
+- **Prediction Market** - Create and bet on community predictions
+- **Boss Raids** - Cooperative server-wide boss battles
+
+**RPG Classes:** Warrior, Mage, Rogue, Cleric
+
 ## Installation
 
 ### Prerequisites
@@ -232,6 +245,7 @@ HyVornBot/
 ├── data/                 # Database files
 ├── logs/                 # Log files
 ├── plugins/              # Custom plugins
+│   ├── community/        # RPG, pets, cards, achievements
 │   ├── example-plugin/
 │   ├── gameserver/
 │   └── hytale/
@@ -281,6 +295,7 @@ HyVornBot/
 ## Recent Updates
 
 ### Latest Changes
+- ✅ Added Community plugin with RPG, pets, cards, and social features
 - ✅ Added comprehensive Hytale community plugin with wiki-accurate faction data
 - ✅ Configurable bot name and owner ID via config.json
 - ✅ Fixed module loading for Birthdays and TempVoice systems
@@ -289,6 +304,7 @@ HyVornBot/
 - ✅ Improved bot stability - no more crashes from interaction timeouts
 
 ### Features Added
+- 🎭 Community plugin with RPG adventures, pets, cards, achievements, and more
 - 🌍 Hytale plugin with news, lore, trivia, faction roles, and more
 - 🎂 Birthday tracking with automatic announcements
 - 🎤 Temporary voice channels that auto-delete
