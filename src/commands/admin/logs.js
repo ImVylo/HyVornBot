@@ -17,98 +17,48 @@ export default {
     .setName('logs')
     .setDescription('Configure logging channels')
     .addSubcommand(sub =>
-      sub.setName('view')
-        .setDescription('View current log channel configuration')
-    )
-    .addSubcommand(sub =>
-      sub.setName('joins')
-        .setDescription('Set the join/leave logs channel')
-        .addChannelOption(opt =>
-          opt.setName('channel')
-            .setDescription('Channel for join/leave logs (leave empty to disable)')
-            .addChannelTypes(ChannelType.GuildText)
+      sub.setName('channels')
+        .setDescription('Configure log channels')
+        .addStringOption(opt =>
+          opt.setName('type')
+            .setDescription('The type of log')
+            .setRequired(true)
+            .addChoices(
+              { name: 'Join/Leave Logs', value: 'joins' },
+              { name: 'Message Logs (edits, deletes)', value: 'messages' },
+              { name: 'User Logs (roles, nicknames)', value: 'users' },
+              { name: 'Moderation Logs (kicks, bans)', value: 'moderation' },
+              { name: 'AutoMod Logs', value: 'automod' },
+              { name: 'Invite Logs', value: 'invites' },
+              { name: 'Voice Logs', value: 'voice' },
+              { name: 'Set All Logs', value: 'all' },
+              { name: 'View All', value: 'view' }
+            )
         )
-    )
-    .addSubcommand(sub =>
-      sub.setName('messages')
-        .setDescription('Set the message logs channel (edits, deletes)')
         .addChannelOption(opt =>
           opt.setName('channel')
-            .setDescription('Channel for message logs (leave empty to disable)')
-            .addChannelTypes(ChannelType.GuildText)
-        )
-    )
-    .addSubcommand(sub =>
-      sub.setName('users')
-        .setDescription('Set the user logs channel (role changes, nickname changes)')
-        .addChannelOption(opt =>
-          opt.setName('channel')
-            .setDescription('Channel for user logs (leave empty to disable)')
-            .addChannelTypes(ChannelType.GuildText)
-        )
-    )
-    .addSubcommand(sub =>
-      sub.setName('moderation')
-        .setDescription('Set the moderation logs channel (kicks, bans, mutes)')
-        .addChannelOption(opt =>
-          opt.setName('channel')
-            .setDescription('Channel for moderation logs (leave empty to disable)')
-            .addChannelTypes(ChannelType.GuildText)
-        )
-    )
-    .addSubcommand(sub =>
-      sub.setName('automod')
-        .setDescription('Set the AutoMod logs channel')
-        .addChannelOption(opt =>
-          opt.setName('channel')
-            .setDescription('Channel for AutoMod logs (leave empty to disable)')
-            .addChannelTypes(ChannelType.GuildText)
-        )
-    )
-    .addSubcommand(sub =>
-      sub.setName('invites')
-        .setDescription('Set the invite logs channel')
-        .addChannelOption(opt =>
-          opt.setName('channel')
-            .setDescription('Channel for invite logs (leave empty to disable)')
-            .addChannelTypes(ChannelType.GuildText)
-        )
-    )
-    .addSubcommand(sub =>
-      sub.setName('voice')
-        .setDescription('Set the voice logs channel (join/leave/move)')
-        .addChannelOption(opt =>
-          opt.setName('channel')
-            .setDescription('Channel for voice logs (leave empty to disable)')
-            .addChannelTypes(ChannelType.GuildText)
-        )
-    )
-    .addSubcommand(sub =>
-      sub.setName('all')
-        .setDescription('Set all logs to one channel')
-        .addChannelOption(opt =>
-          opt.setName('channel')
-            .setDescription('Channel for all logs (leave empty to disable all)')
+            .setDescription('The channel (leave empty to disable)')
             .addChannelTypes(ChannelType.GuildText)
         )
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
   async execute(interaction, client) {
-    const subcommand = interaction.options.getSubcommand();
     const guildId = interaction.guild.id;
+    const type = interaction.options.getString('type');
     const channel = interaction.options.getChannel('channel');
 
-    if (subcommand === 'view') {
+    // View log configuration
+    if (type === 'view') {
       return showLogConfig(interaction, client);
     }
 
-    if (subcommand === 'all') {
-      // Set all log channels to the same channel
+    // Set all log channels to the same channel
+    if (type === 'all') {
       const channelTypes = ['joins', 'messages', 'users', 'moderation', 'automod', 'invites', 'voice'];
 
-      for (const type of channelTypes) {
-        const settingKey = LogChannels[type];
+      for (const logType of channelTypes) {
+        const settingKey = LogChannels[logType];
         client.db.setSetting(guildId, settingKey, channel?.id || null);
       }
 
@@ -124,7 +74,7 @@ export default {
     }
 
     // Handle individual log channel settings
-    const settingKey = LogChannels[subcommand];
+    const settingKey = LogChannels[type];
     const logNames = {
       joins: 'Join/Leave',
       messages: 'Message',
@@ -139,11 +89,11 @@ export default {
 
     if (channel) {
       return interaction.reply({
-        embeds: [successEmbed(`${logNames[subcommand]} logs will be sent to ${channel}.`)]
+        embeds: [successEmbed(`${logNames[type]} logs will be sent to ${channel}.`)]
       });
     } else {
       return interaction.reply({
-        embeds: [successEmbed(`${logNames[subcommand]} logs have been disabled.`)]
+        embeds: [successEmbed(`${logNames[type]} logs have been disabled.`)]
       });
     }
   }
@@ -161,7 +111,7 @@ async function showLogConfig(interaction, client) {
   const embed = new EmbedBuilder()
     .setColor(Colors.PRIMARY)
     .setTitle(`${Emojis.INFO} Log Channels Configuration`)
-    .setDescription('Use `/logs <type> #channel` to set a log channel.\nLeave channel empty to disable.')
+    .setDescription('Use `/logs channels <type> [channel]` to configure.')
     .addFields(
       { name: '👋 Join/Leave Logs', value: getChannel(LogChannels.joins), inline: true },
       { name: '💬 Message Logs', value: getChannel(LogChannels.messages), inline: true },
@@ -171,7 +121,7 @@ async function showLogConfig(interaction, client) {
       { name: '📨 Invite Logs', value: getChannel(LogChannels.invites), inline: true },
       { name: '🔊 Voice Logs', value: getChannel(LogChannels.voice), inline: true }
     )
-    .setFooter({ text: 'Tip: Use /logs all #channel to set all logs to one channel' })
+    .setFooter({ text: 'Tip: Use type "Set All Logs" to configure all at once' })
     .setTimestamp();
 
   return interaction.reply({ embeds: [embed] });

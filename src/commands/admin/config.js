@@ -65,24 +65,23 @@ export default {
     )
     .addSubcommand(sub =>
       sub
-        .setName('welcomechannel')
-        .setDescription('Set the welcome channel')
-        .addChannelOption(opt =>
+        .setName('notifications')
+        .setDescription('Configure notification channels')
+        .addStringOption(opt =>
           opt
-            .setName('channel')
-            .setDescription('The welcome channel')
-            .addChannelTypes(ChannelType.GuildText)
+            .setName('type')
+            .setDescription('The type of notification')
             .setRequired(true)
+            .addChoices(
+              { name: 'Level-Up Messages', value: 'levelup' },
+              { name: 'Welcome Messages', value: 'welcome' },
+              { name: 'View All', value: 'view' }
+            )
         )
-    )
-    .addSubcommand(sub =>
-      sub
-        .setName('levelupchannel')
-        .setDescription('Set the level-up notification channel')
         .addChannelOption(opt =>
           opt
             .setName('channel')
-            .setDescription('The level-up channel (or current for same channel)')
+            .setDescription('The channel (leave empty to use current channel or disable)')
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(false)
         )
@@ -284,28 +283,65 @@ export default {
         });
       }
 
-      case 'welcomechannel': {
+      case 'notifications': {
+        const type = interaction.options.getString('type');
         const channel = interaction.options.getChannel('channel');
-        client.db.setSetting(guildId, 'welcomeChannel', channel.id);
+        const settings = client.db.getGuild(guildId).settings;
 
-        return interaction.reply({
-          embeds: [successEmbed(`Welcome channel set to ${channel}.`)]
-        });
-      }
+        // View all notification settings
+        if (type === 'view') {
+          const embed = new EmbedBuilder()
+            .setColor(BOT_COLOR)
+            .setTitle('Notification Channels')
+            .addFields(
+              {
+                name: 'Level-Up Messages',
+                value: settings.levelUpChannel
+                  ? (settings.levelUpChannel === 'current' ? 'Current channel' : `<#${settings.levelUpChannel}>`)
+                  : 'Disabled',
+                inline: true
+              },
+              {
+                name: 'Welcome Messages',
+                value: settings.welcomeChannel ? `<#${settings.welcomeChannel}>` : 'Disabled',
+                inline: true
+              }
+            )
+            .setFooter({ text: 'Use /config notifications <type> <channel> to configure' });
 
-      case 'levelupchannel': {
-        const channel = interaction.options.getChannel('channel');
-        if (channel) {
-          client.db.setSetting(guildId, 'levelUpChannel', channel.id);
-          return interaction.reply({
-            embeds: [successEmbed(`Level-up notifications will be sent to ${channel}.`)]
-          });
-        } else {
-          client.db.setSetting(guildId, 'levelUpChannel', 'current');
-          return interaction.reply({
-            embeds: [successEmbed(`Level-up notifications will be sent in the current channel.`)]
-          });
+          return interaction.reply({ embeds: [embed] });
         }
+
+        // Configure level-up notifications
+        if (type === 'levelup') {
+          if (channel) {
+            client.db.setSetting(guildId, 'levelUpChannel', channel.id);
+            return interaction.reply({
+              embeds: [successEmbed(`Level-up notifications will be sent to ${channel}.`)]
+            });
+          } else {
+            client.db.setSetting(guildId, 'levelUpChannel', 'current');
+            return interaction.reply({
+              embeds: [successEmbed(`Level-up notifications will be sent in the current channel.`)]
+            });
+          }
+        }
+
+        // Configure welcome messages
+        if (type === 'welcome') {
+          if (channel) {
+            client.db.setSetting(guildId, 'welcomeChannel', channel.id);
+            return interaction.reply({
+              embeds: [successEmbed(`Welcome messages will be sent to ${channel}.`)]
+            });
+          } else {
+            client.db.setSetting(guildId, 'welcomeChannel', null);
+            return interaction.reply({
+              embeds: [successEmbed(`Welcome messages have been disabled.`)]
+            });
+          }
+        }
+        break;
       }
 
       case 'toggle': {
@@ -537,8 +573,8 @@ async function showConfig(interaction, client) {
         inline: true
       },
       {
-        name: 'Welcome Channel',
-        value: settings.welcomeChannel ? `<#${settings.welcomeChannel}>` : 'Not set',
+        name: 'Notifications',
+        value: formatNotifications(settings),
         inline: true
       },
       {
@@ -606,7 +642,7 @@ async function showConfigMenu(message, client) {
       '`/config view` - View current settings\n' +
       '`/config role <type> <role>` - Configure roles (admin/mod/mute/member)\n' +
       '`/config logchannel <channel>` - Set log channel\n' +
-      '`/config welcomechannel <channel>` - Set welcome channel\n' +
+      '`/config notifications <type> [channel]` - Set notification channels\n' +
       '`/config channels <category> [channel]` - Restrict commands to channels\n' +
       '`/config autorole [role]` - Set auto-role for new members\n' +
       '`/config autopunish <action> <warnings>` - Set auto-punishment thresholds\n' +
@@ -654,4 +690,17 @@ function formatChannelRestrictions(channelRestrictions, funChannel) {
   }
 
   return restrictions.length > 0 ? restrictions.join('\n') : 'None';
+}
+
+function formatNotifications(settings) {
+  const notifications = [];
+
+  if (settings.levelUpChannel) {
+    notifications.push(`Level-Up: ${settings.levelUpChannel === 'current' ? 'Current' : `<#${settings.levelUpChannel}>`}`);
+  }
+  if (settings.welcomeChannel) {
+    notifications.push(`Welcome: <#${settings.welcomeChannel}>`);
+  }
+
+  return notifications.length > 0 ? notifications.join('\n') : 'None configured';
 }
