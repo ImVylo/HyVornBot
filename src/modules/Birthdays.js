@@ -207,11 +207,15 @@ export default class Birthdays {
         if (config.role_id) {
           const role = guild.roles.cache.get(config.role_id);
           if (role) {
-            await member.roles.add(role).catch(console.error);
+            await member.roles.add(role).catch(error =>
+              this.client.logger.error('Birthdays', 'Failed to add birthday role:', error)
+            );
 
             // Remove role after 24 hours
             setTimeout(async () => {
-              await member.roles.remove(role).catch(console.error);
+              await member.roles.remove(role).catch(error =>
+                this.client.logger.error('Birthdays', 'Failed to remove birthday role:', error)
+              );
             }, 24 * 60 * 60 * 1000);
           }
         }
@@ -219,7 +223,7 @@ export default class Birthdays {
         this.markAsChecked(guildId, birthday.user_id);
       }
     } catch (error) {
-      console.error(`Error checking birthdays for guild ${guildId}:`, error);
+      this.client.logger.error('Birthdays', `Error checking birthdays for guild ${guildId}:`, error);
     }
   }
 

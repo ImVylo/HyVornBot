@@ -119,7 +119,7 @@ export default class TempVoice {
 
       return channel;
     } catch (error) {
-      console.error('Error creating temp voice channel:', error);
+      this.client.logger.error('TempVoice', 'Error creating temp voice channel:', error);
     }
   }
 
@@ -137,7 +137,7 @@ export default class TempVoice {
         this.tempChannels.delete(channel.id);
         await channel.delete();
       } catch (error) {
-        console.error('Error deleting temp voice channel:', error);
+        this.client.logger.error('TempVoice', 'Error deleting temp voice channel:', error);
       }
     }
   }
@@ -161,7 +161,7 @@ export default class TempVoice {
           try {
             await channel.delete();
           } catch (error) {
-            console.error('Error deleting orphaned channel:', error);
+            this.client.logger.error('TempVoice', 'Error deleting orphaned channel:', error);
           }
         }
         this.db.db.prepare('DELETE FROM tempvoice_channels WHERE channel_id = ?').run(temp.channel_id);

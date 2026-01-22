@@ -26,7 +26,7 @@ export default {
 
     try {
       const giveawayModule = client.getModule('giveaways');
-      const giveaway = client.db.getGiveawayByMessageId(messageId);
+      const giveaway = client.db.getGiveawayByMessage(messageId);
 
       if (!giveaway) {
         return interaction.reply({
