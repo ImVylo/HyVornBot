@@ -95,68 +95,107 @@ const ZONES = {
 };
 
 // ============================================
-// EXPANDED FACTIONS DATA
+// FACTIONS DATA (Based on Hytale Wiki)
 // ============================================
 const FACTIONS = {
+  // === PEACEFUL FACTIONS ===
   'kweebec': {
     name: 'Kweebecs',
-    description: 'Small, friendly forest-dwelling creatures who live in harmony with nature. They are skilled craftsmen and traders, known for their colorful villages built into giant trees.',
+    description: 'Small, friendly forest-dwelling creatures who form unique societies with their own cultures. They live in harmony with nature and are known for their colorful villages built into giant trees.',
     color: Colors.KWEEBEC,
     zone: 'Emerald Grove',
-    traits: ['Peaceful', 'Nature-loving', 'Skilled craftsmen', 'Traders', 'Community-focused'],
-    enemies: ['Trorks', 'Outlanders (sometimes)'],
-    culture: 'Kweebecs value community and harmony with nature. Their villages feature intricate tree-house architecture connected by rope bridges. They celebrate seasonal festivals and are known for their herbal medicines.',
-    leader: 'Elder Council'
-  },
-  'trork': {
-    name: 'Trorks',
-    description: 'Hostile, tribal creatures that raid Kweebec villages. They are aggressive warriors who live in crude camps and worship dark totems.',
-    color: Colors.TRORK,
-    zone: 'Emerald Grove',
-    traits: ['Aggressive', 'Tribal', 'Raiders', 'Warriors', 'Shamanistic'],
-    enemies: ['Kweebecs', 'Outlanders', 'Other Trork tribes'],
-    culture: 'Trorks are organized into warring tribes, each led by the strongest warrior. They practice dark shamanism and believe strength is the only virtue worth having.',
-    leader: 'Tribal Warlords'
+    disposition: 'Peaceful',
+    traits: ['Peaceful', 'Nature-loving', 'Community-focused', 'Skilled craftsmen'],
+    enemies: ['Trorks'],
+    culture: 'Kweebecs value community and harmony with nature. Their villages feature intricate tree-house architecture connected by rope bridges.',
+    reputation: 'Players can increase standing by rescuing Kweebecs from Trork camps. Standing decreases by attacking them or cutting nearby trees. Low reputation triggers Kweebec Razorleaf Rangers to attack.',
+    leader: 'Village Elders'
   },
   'feran': {
-    name: 'Feran',
-    description: 'An ancient, cat-like civilization that once ruled the desert. They built magnificent pyramids and temples, and possess advanced magical knowledge.',
+    name: 'Ferans',
+    description: 'An ancient, cat-like civilization inhabiting the desert. They have built magnificent structures and possess deep religious traditions centered around their deity.',
     color: Colors.FERAN,
     zone: 'Howling Sands',
-    traits: ['Ancient', 'Magical', 'Builders', 'Mysterious', 'Proud'],
-    enemies: ['Tomb raiders', 'Sand creatures'],
-    culture: 'The Feran worship the sun and believe in the afterlife. Their mummification practices preserve their greatest warriors and priests. Much of their civilization now lies in ruins, guarded by the undead.',
-    leader: 'Pharaohs (ancient)'
+    disposition: 'Peaceful',
+    traits: ['Ancient', 'Religious', 'Mysterious', 'Builders'],
+    enemies: ['Scaraks'],
+    culture: 'The Ferans worship their deity through religious offerings. Their civilization features grand pyramids and temples filled with ancient knowledge.',
+    reputation: 'Players gain standing through gift-giving and religious offerings to the Feran deity.',
+    leader: 'High Priests'
   },
-  'outlanders': {
+  // === AGGRESSIVE FACTIONS ===
+  'trork': {
+    name: 'Trorks',
+    description: 'Hostile, tribal creatures that operate camps where they capture other NPCs. They are aggressive raiders who oppose the peaceful Kweebecs.',
+    color: Colors.TRORK,
+    zone: 'Emerald Grove',
+    disposition: 'Aggressive',
+    traits: ['Aggressive', 'Tribal', 'Raiders', 'Captors'],
+    enemies: ['Kweebecs', 'Players'],
+    culture: 'Trorks are organized into raiding parties that capture NPCs from other factions. Their camps serve as prisons for their captives.',
+    reputation: 'Hostile by default. Players can rescue captured NPCs from their camps.',
+    leader: 'Tribal Warlords'
+  },
+  'scarak': {
+    name: 'Scaraks',
+    description: 'Aggressive insectoid creatures that inhabit the Howling Sands desert. They pose a constant threat to travelers and the Feran civilization.',
+    color: Colors.ZONE2,
+    zone: 'Howling Sands',
+    disposition: 'Aggressive',
+    traits: ['Aggressive', 'Insectoid', 'Swarming', 'Desert-dwelling'],
+    enemies: ['Ferans', 'Players'],
+    culture: 'Scaraks operate in swarms and colonies beneath the desert sands. They are fiercely territorial and attack intruders on sight.',
+    reputation: 'Hostile by default.',
+    leader: 'Hive Queens'
+  },
+  'outlander': {
     name: 'Outlanders',
-    description: 'Human explorers and adventurers who have come to Orbis seeking fortune and glory. They establish settlements and trade with various factions.',
+    description: 'A faction found in Borea with an aggressive disposition. They have adapted to the harsh frozen environment and defend their territory fiercely.',
     color: Colors.OUTLANDER,
-    zone: 'All Zones',
-    traits: ['Adventurous', 'Adaptable', 'Resourceful', 'Diverse', 'Ambitious'],
-    enemies: ['Varies by zone'],
-    culture: 'Outlanders come from many backgrounds and cultures. They are united by their desire to explore Orbis and make their mark on this new world. Their settlements blend various architectural styles.',
-    leader: 'Various Leaders'
+    zone: 'Borea',
+    disposition: 'Aggressive',
+    traits: ['Aggressive', 'Hardy', 'Survivalists', 'Territorial'],
+    enemies: ['Intruders'],
+    culture: 'Outlanders have established settlements in the frozen wastes of Borea. They are wary of strangers and quick to defend their resources.',
+    reputation: 'Hostile by default in their territory.',
+    leader: 'Chieftains'
   },
-  'void-cult': {
-    name: 'Void Cult',
-    description: 'Dark worshippers who serve the void entities. They seek to spread corruption across Orbis and summon their dark masters.',
+  // === OTHER FACTIONS ===
+  'slothian': {
+    name: 'Slothians',
+    description: 'Mysterious creatures inhabiting the Devastated Lands. Little is known about their disposition or culture.',
     color: Colors.ZONE4,
     zone: 'Devastated Lands',
-    traits: ['Fanatical', 'Corrupted', 'Secretive', 'Powerful', 'Dangerous'],
-    enemies: ['All living beings'],
-    culture: 'The Void Cult believes that the void is the true nature of reality and that corruption is purification. They perform dark rituals and sacrifice to gain power from void entities.',
-    leader: 'High Priests of the Void'
+    disposition: 'Unknown',
+    traits: ['Mysterious', 'Corrupted lands dwellers'],
+    enemies: ['Unknown'],
+    culture: 'The Slothians exist within the corrupted Devastated Lands. Their nature and intentions remain shrouded in mystery.',
+    reputation: 'Unknown disposition.',
+    leader: 'Unknown'
   },
-  'merfolk': {
-    name: 'Merfolk',
-    description: 'Aquatic beings who rule the oceans of Orbis. They are protective of their underwater kingdom and wary of surface dwellers.',
-    color: Colors.ZONE5,
-    zone: 'Ocean',
-    traits: ['Aquatic', 'Territorial', 'Ancient', 'Magical', 'Isolationist'],
-    enemies: ['Pirates', 'Surface polluters'],
-    culture: 'Merfolk have built grand underwater cities of coral and pearl. They worship ocean deities and have a complex society based on ocean currents and migration patterns.',
-    leader: 'Ocean Monarch'
+  'faun': {
+    name: 'Fauns',
+    description: 'A faction whose zone and disposition are not yet fully revealed. They appear to be nature-connected creatures.',
+    color: 0x8B4513,
+    zone: 'Unknown',
+    disposition: 'Unknown',
+    traits: ['Nature-connected', 'Mysterious'],
+    enemies: ['Unknown'],
+    culture: 'Little is known about Faun society and culture.',
+    reputation: 'Unknown.',
+    leader: 'Unknown'
+  },
+  'klop': {
+    name: 'Klops',
+    description: 'A faction with a neutral disposition. They are neither hostile nor friendly by default, making them unique among Orbis factions.',
+    color: 0x808080,
+    zone: 'Unknown',
+    disposition: 'Neutral',
+    traits: ['Neutral', 'Passive'],
+    enemies: ['None by default'],
+    culture: 'Klops maintain a neutral stance toward other factions and players.',
+    reputation: 'Neutral by default. Actions may shift their disposition.',
+    leader: 'Unknown'
   }
 };
 
@@ -713,12 +752,14 @@ class HytalePlugin {
                 .setDescription('Faction name')
                 .setRequired(true)
                 .addChoices(
-                  { name: 'Kweebecs', value: 'kweebec' },
-                  { name: 'Trorks', value: 'trork' },
-                  { name: 'Feran', value: 'feran' },
-                  { name: 'Outlanders', value: 'outlanders' },
-                  { name: 'Void Cult', value: 'void-cult' },
-                  { name: 'Merfolk', value: 'merfolk' }
+                  { name: 'Kweebecs (Peaceful)', value: 'kweebec' },
+                  { name: 'Ferans (Peaceful)', value: 'feran' },
+                  { name: 'Trorks (Aggressive)', value: 'trork' },
+                  { name: 'Scaraks (Aggressive)', value: 'scarak' },
+                  { name: 'Outlanders (Aggressive)', value: 'outlander' },
+                  { name: 'Slothians (Unknown)', value: 'slothian' },
+                  { name: 'Fauns (Unknown)', value: 'faun' },
+                  { name: 'Klops (Neutral)', value: 'klop' }
                 )
             )
         )
@@ -818,11 +859,13 @@ class HytalePlugin {
                 .setRequired(true)
                 .addChoices(
                   { name: 'Kweebecs', value: 'kweebec' },
+                  { name: 'Ferans', value: 'feran' },
                   { name: 'Trorks', value: 'trork' },
-                  { name: 'Feran', value: 'feran' },
-                  { name: 'Outlanders', value: 'outlanders' },
-                  { name: 'Void Cult', value: 'void-cult' },
-                  { name: 'Merfolk', value: 'merfolk' },
+                  { name: 'Scaraks', value: 'scarak' },
+                  { name: 'Outlanders', value: 'outlander' },
+                  { name: 'Slothians', value: 'slothian' },
+                  { name: 'Fauns', value: 'faun' },
+                  { name: 'Klops', value: 'klop' },
                   { name: 'Remove Role', value: 'remove' }
                 )
             )
@@ -1171,18 +1214,27 @@ class HytalePlugin {
       });
     }
 
+    const dispositionEmoji = {
+      'Peaceful': '🕊️',
+      'Aggressive': '⚔️',
+      'Neutral': '⚖️',
+      'Unknown': '❓'
+    };
+
     const embed = new EmbedBuilder()
       .setColor(faction.color)
       .setTitle(faction.name)
       .setDescription(faction.description)
       .addFields(
-        { name: 'Home Zone', value: faction.zone, inline: true },
+        { name: 'Zone', value: faction.zone, inline: true },
+        { name: 'Disposition', value: `${dispositionEmoji[faction.disposition] || '❓'} ${faction.disposition}`, inline: true },
         { name: 'Leader', value: faction.leader, inline: true },
         { name: 'Traits', value: faction.traits.join(', '), inline: false },
         { name: 'Culture', value: faction.culture, inline: false },
-        { name: 'Enemies', value: Array.isArray(faction.enemies) ? faction.enemies.join(', ') : faction.enemies, inline: false }
+        { name: 'Enemies', value: Array.isArray(faction.enemies) ? faction.enemies.join(', ') : faction.enemies, inline: false },
+        { name: 'Reputation System', value: faction.reputation, inline: false }
       )
-      .setFooter({ text: 'Hytale Faction Information' });
+      .setFooter({ text: 'Hytale Faction Information • Source: Hytale Wiki' });
 
     await interaction.reply({ embeds: [embed] });
   }
