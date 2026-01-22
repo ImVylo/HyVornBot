@@ -286,10 +286,14 @@ HyVornBot/
     │   ├── Leveling.js
     │   ├── Logging.js
     │   ├── ReactionRoles.js
-    │   ├── Requests.js       # Unified request system (tickets, suggestions, applications)
+    │   ├── Requests.js
     │   ├── TempVoice.js
     │   └── Welcome.js
     └── utils/           # Utility functions
+        ├── constants.js
+        ├── embeds.js
+        ├── pagination.js
+        └── time.js
 ```
 
 ## Dependencies
