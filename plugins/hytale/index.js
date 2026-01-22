@@ -895,6 +895,15 @@ class HytalePlugin {
                 .setDescription('Channel for fan art (leave empty to disable)')
                 .addChannelTypes(ChannelType.GuildText)
             )
+        )
+        .addSubcommand(sub =>
+          sub.setName('setchannel')
+            .setDescription('Restrict Hytale commands to a specific channel')
+            .addChannelOption(opt =>
+              opt.setName('channel')
+                .setDescription('Channel for Hytale commands (leave empty to allow everywhere)')
+                .addChannelTypes(ChannelType.GuildText)
+            )
         ),
 
       execute: this.handleCommand.bind(this)
@@ -1031,6 +1040,28 @@ class HytalePlugin {
   async handleCommand(interaction) {
     const subcommand = interaction.options.getSubcommand();
 
+    // Admin commands bypass channel restriction
+    const adminCommands = ['setnews', 'setuproles', 'setfanart', 'setchannel'];
+
+    // Check channel restriction for non-admin commands
+    if (!adminCommands.includes(subcommand) && interaction.guild) {
+      const settings = this.client.db.getGuild(interaction.guild.id).settings;
+      const hytaleChannel = settings.hytaleChannel;
+
+      if (hytaleChannel && interaction.channel.id !== hytaleChannel) {
+        // Skip check for users with Manage Server permission
+        if (!interaction.member.permissions.has('ManageGuild')) {
+          return interaction.reply({
+            embeds: [{
+              color: Colors.ERROR,
+              description: `Hytale commands can only be used in <#${hytaleChannel}>.`
+            }],
+            flags: MessageFlags.Ephemeral
+          });
+        }
+      }
+    }
+
     switch (subcommand) {
       case 'news': return this.handleNews(interaction);
       case 'setnews': return this.handleSetNews(interaction);
@@ -1050,6 +1081,7 @@ class HytalePlugin {
       case 'setuproles': return this.handleSetupRoles(interaction);
       case 'fanart': return this.handleFanArt(interaction);
       case 'setfanart': return this.handleSetFanArt(interaction);
+      case 'setchannel': return this.handleSetChannel(interaction);
     }
   }
 
@@ -1752,6 +1784,37 @@ class HytalePlugin {
         .setColor(Colors.SUCCESS)
         .setTitle('Fan Art Gallery Configured')
         .setDescription(`Fan art submissions will be posted to ${channel}.`)
+      ]
+    });
+  }
+
+  async handleSetChannel(interaction) {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+      return interaction.reply({
+        embeds: [new EmbedBuilder().setColor(Colors.ERROR).setDescription('You need Manage Server permission.')],
+        flags: MessageFlags.Ephemeral
+      });
+    }
+
+    const channel = interaction.options.getChannel('channel');
+
+    if (!channel) {
+      this.client.db.setSetting(interaction.guild.id, 'hytaleChannel', null);
+      return interaction.reply({
+        embeds: [new EmbedBuilder()
+          .setColor(Colors.SUCCESS)
+          .setTitle('Channel Restriction Removed')
+          .setDescription('Hytale commands can now be used in any channel.')
+        ]
+      });
+    }
+
+    this.client.db.setSetting(interaction.guild.id, 'hytaleChannel', channel.id);
+    await interaction.reply({
+      embeds: [new EmbedBuilder()
+        .setColor(Colors.SUCCESS)
+        .setTitle('Channel Restriction Set')
+        .setDescription(`Hytale commands can now only be used in ${channel}.`)
       ]
     });
   }

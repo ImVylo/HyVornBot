@@ -163,6 +163,32 @@ export default {
             .setRequired(false)
         )
     )
+    .addSubcommand(sub =>
+      sub
+        .setName('channels')
+        .setDescription('Restrict command categories to specific channels')
+        .addStringOption(opt =>
+          opt
+            .setName('category')
+            .setDescription('The command category to restrict')
+            .setRequired(true)
+            .addChoices(
+              { name: 'Economy (balance, daily, shop, etc.)', value: 'economy' },
+              { name: 'Fun (8ball, jokes, social commands)', value: 'fun' },
+              { name: 'Leveling (rank, leaderboard)', value: 'leveling' },
+              { name: 'Giveaway (start, end, reroll)', value: 'giveaway' },
+              { name: 'Utility (avatar, userinfo, polls)', value: 'utility' },
+              { name: 'View All Restrictions', value: 'view' }
+            )
+        )
+        .addChannelOption(opt =>
+          opt
+            .setName('channel')
+            .setDescription('The channel to restrict to (leave empty to allow everywhere)')
+            .addChannelTypes(ChannelType.GuildText)
+            .setRequired(false)
+        )
+    )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
   async execute(interaction, client) {
@@ -466,6 +492,54 @@ export default {
           });
         }
       }
+
+      case 'channels': {
+        const category = interaction.options.getString('category');
+        const channel = interaction.options.getChannel('channel');
+        const settings = client.db.getGuild(guildId).settings;
+        const channelRestrictions = settings.channelRestrictions || {};
+
+        // View all restrictions
+        if (category === 'view') {
+          const categoryNames = {
+            economy: 'Economy',
+            fun: 'Fun',
+            leveling: 'Leveling',
+            giveaway: 'Giveaway',
+            utility: 'Utility',
+            community: 'Community',
+            hytale: 'Hytale'
+          };
+
+          const restrictions = Object.entries(channelRestrictions)
+            .filter(([_, channelId]) => channelId)
+            .map(([cat, channelId]) => `**${categoryNames[cat] || cat}**: <#${channelId}>`)
+            .join('\n');
+
+          const embed = new EmbedBuilder()
+            .setColor(BOT_COLOR)
+            .setTitle('Channel Restrictions')
+            .setDescription(restrictions || 'No channel restrictions set. All commands can be used anywhere.')
+            .setFooter({ text: 'Use /config channels <category> <channel> to set restrictions' });
+
+          return interaction.reply({ embeds: [embed] });
+        }
+
+        // Set or clear restriction
+        if (channel) {
+          channelRestrictions[category] = channel.id;
+          client.db.setSetting(guildId, 'channelRestrictions', channelRestrictions);
+          return interaction.reply({
+            embeds: [successEmbed(`**${capitalize(category)}** commands can now only be used in ${channel}.`)]
+          });
+        } else {
+          channelRestrictions[category] = null;
+          client.db.setSetting(guildId, 'channelRestrictions', channelRestrictions);
+          return interaction.reply({
+            embeds: [successEmbed(`**${capitalize(category)}** commands can now be used in any channel.`)]
+          });
+        }
+      }
     }
   }
 };
@@ -514,8 +588,8 @@ async function showConfig(interaction, client) {
         inline: true
       },
       {
-        name: 'Fun Channel',
-        value: settings.funChannel ? `<#${settings.funChannel}>` : 'All channels',
+        name: 'Channel Restrictions',
+        value: formatChannelRestrictions(settings.channelRestrictions, settings.funChannel),
         inline: true
       },
       {
@@ -560,7 +634,7 @@ async function showConfigMenu(message, client) {
       '`/config role <type> <role>` - Configure roles (admin/mod/mute/member)\n' +
       '`/config logchannel <channel>` - Set log channel\n' +
       '`/config welcomechannel <channel>` - Set welcome channel\n' +
-      '`/config funchannel [channel]` - Set fun commands channel\n' +
+      '`/config channels <category> [channel]` - Restrict commands to channels\n' +
       '`/config autorole [role]` - Set auto-role for new members\n' +
       '`/config autopunish <action> <warnings>` - Set auto-punishment thresholds\n' +
       '`/config toggle <module>` - Toggle modules');
@@ -587,4 +661,24 @@ function formatAutoPunishments(warnPunishments) {
   }
 
   return parts.length > 0 ? parts.join('\n') : 'Not configured';
+}
+
+function formatChannelRestrictions(channelRestrictions, funChannel) {
+  const restrictions = [];
+
+  // Check new channel restrictions
+  if (channelRestrictions) {
+    for (const [category, channelId] of Object.entries(channelRestrictions)) {
+      if (channelId) {
+        restrictions.push(`${capitalize(category)}: <#${channelId}>`);
+      }
+    }
+  }
+
+  // Check legacy funChannel (if not already in restrictions)
+  if (funChannel && (!channelRestrictions || !channelRestrictions.fun)) {
+    restrictions.push(`Fun: <#${funChannel}>`);
+  }
+
+  return restrictions.length > 0 ? restrictions.join('\n') : 'None';
 }

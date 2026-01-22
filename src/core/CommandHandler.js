@@ -174,6 +174,16 @@ class CommandHandler {
       }
     }
 
+    // Check channel restrictions (skip for users with Manage Server)
+    if (message.guild && !message.member.permissions.has('ManageGuild')) {
+      const channelCheck = this.checkChannelRestriction(message.guild.id, message.channel.id, command);
+      if (!channelCheck.allowed) {
+        return message.reply({
+          embeds: [errorEmbed(`This command can only be used in <#${channelCheck.restrictedChannel}>.`)]
+        });
+      }
+    }
+
     // Check cooldown
     const cooldownResult = this.checkCooldown(message.author.id, command);
     if (cooldownResult.onCooldown) {
@@ -233,6 +243,17 @@ class CommandHandler {
       }
     }
 
+    // Check channel restrictions (skip for users with Manage Server)
+    if (interaction.guild && !interaction.member.permissions.has('ManageGuild')) {
+      const channelCheck = this.checkChannelRestriction(interaction.guild.id, interaction.channel.id, command);
+      if (!channelCheck.allowed) {
+        return interaction.reply({
+          embeds: [errorEmbed(`This command can only be used in <#${channelCheck.restrictedChannel}>.`)],
+          flags: MessageFlags.Ephemeral
+        });
+      }
+    }
+
     // Check cooldown
     const cooldownResult = this.checkCooldown(interaction.user.id, command);
     if (cooldownResult.onCooldown) {
@@ -274,6 +295,38 @@ class CommandHandler {
         }
       }
     }
+  }
+
+  /**
+   * Check if command can be used in channel
+   * @param {string} guildId - Guild ID
+   * @param {string} channelId - Channel ID
+   * @param {Object} command - Command object
+   * @returns {Object} Result with allowed boolean and restrictedChannel if blocked
+   */
+  checkChannelRestriction(guildId, channelId, command) {
+    const category = command.category || command.pluginCategory;
+    if (!category) return { allowed: true };
+
+    // Skip restriction check for admin/moderation commands
+    const bypassCategories = ['admin', 'moderation', 'tickets', 'requests', 'suggestions', 'birthdays', 'voice'];
+    if (bypassCategories.includes(category)) return { allowed: true };
+
+    const settings = this.client.db.getGuild(guildId).settings;
+    const channelRestrictions = settings.channelRestrictions || {};
+
+    // Check if this category has a channel restriction
+    const restrictedChannelId = channelRestrictions[category];
+    if (restrictedChannelId && restrictedChannelId !== channelId) {
+      return { allowed: false, restrictedChannel: restrictedChannelId };
+    }
+
+    // Also check the old funChannel setting for backwards compatibility
+    if (category === 'fun' && settings.funChannel && settings.funChannel !== channelId) {
+      return { allowed: false, restrictedChannel: settings.funChannel };
+    }
+
+    return { allowed: true };
   }
 
   /**

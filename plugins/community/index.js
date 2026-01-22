@@ -507,8 +507,25 @@ class CommunityPlugin {
       execute: this.handleRaid.bind(this)
     };
 
+    // Community Settings Command
+    const communityCommand = {
+      name: 'community',
+      description: 'Community plugin settings',
+      category: 'plugins',
+      cooldown: 3,
+      data: new SlashCommandBuilder()
+        .setName('community')
+        .setDescription('Community plugin settings')
+        .addSubcommand(sub => sub.setName('setchannel')
+          .setDescription('Restrict community commands to a specific channel')
+          .addChannelOption(opt => opt.setName('channel')
+            .setDescription('Channel for community commands (leave empty to allow everywhere)')
+            .addChannelTypes(ChannelType.GuildText))),
+      execute: this.handleCommunitySettings.bind(this)
+    };
+
     // Register all commands
-    const commands = [rpgCommand, petCommand, cardCommand, repCommand, achieveCommand, starCommand, capsuleCommand, predictCommand, raidCommand];
+    const commands = [rpgCommand, petCommand, cardCommand, repCommand, achieveCommand, starCommand, capsuleCommand, predictCommand, raidCommand, communityCommand];
     commands.forEach(cmd => {
       this.client.commands.set(cmd.name, cmd);
       this.client.slashCommands.set(cmd.name, cmd);
@@ -538,6 +555,8 @@ class CommunityPlugin {
 
   // ==================== RPG HANDLERS ====================
   async handleRpg(interaction) {
+    if (!this.checkChannelRestriction(interaction)) return;
+
     const sub = interaction.options.getSubcommand();
     const db = this.client.db.db;
 
@@ -886,6 +905,8 @@ class CommunityPlugin {
 
   // ==================== PET HANDLERS ====================
   async handlePet(interaction) {
+    if (!this.checkChannelRestriction(interaction)) return;
+
     const sub = interaction.options.getSubcommand();
     const db = this.client.db.db;
 
@@ -1048,6 +1069,8 @@ class CommunityPlugin {
 
   // ==================== CARD HANDLERS ====================
   async handleCard(interaction) {
+    if (!this.checkChannelRestriction(interaction)) return;
+
     const sub = interaction.options.getSubcommand();
     const db = this.client.db.db;
 
@@ -1220,6 +1243,8 @@ class CommunityPlugin {
 
   // ==================== REPUTATION HANDLERS ====================
   async handleRep(interaction) {
+    if (!this.checkChannelRestriction(interaction)) return;
+
     const sub = interaction.options.getSubcommand();
     const db = this.client.db.db;
 
@@ -1304,6 +1329,8 @@ class CommunityPlugin {
 
   // ==================== ACHIEVEMENT HANDLERS ====================
   async handleAchievements(interaction) {
+    if (!this.checkChannelRestriction(interaction)) return;
+
     const db = this.client.db.db;
     const targetUser = interaction.options.getUser('user') || interaction.user;
 
@@ -1429,6 +1456,8 @@ class CommunityPlugin {
 
   // ==================== TIME CAPSULE HANDLERS ====================
   async handleTimeCapsule(interaction) {
+    if (!this.checkChannelRestriction(interaction)) return;
+
     const sub = interaction.options.getSubcommand();
     const db = this.client.db.db;
 
@@ -1518,6 +1547,8 @@ class CommunityPlugin {
 
   // ==================== PREDICTION HANDLERS ====================
   async handlePredict(interaction) {
+    if (!this.checkChannelRestriction(interaction)) return;
+
     const sub = interaction.options.getSubcommand();
     const db = this.client.db.db;
 
@@ -1655,6 +1686,8 @@ class CommunityPlugin {
 
   // ==================== RAID HANDLERS ====================
   async handleRaid(interaction) {
+    if (!this.checkChannelRestriction(interaction)) return;
+
     const sub = interaction.options.getSubcommand();
     const db = this.client.db.db;
 
@@ -1756,6 +1789,65 @@ class CommunityPlugin {
         await interaction.reply({ embeds: [embed] });
         break;
       }
+    }
+  }
+
+  // ==================== CHANNEL RESTRICTION ====================
+  checkChannelRestriction(interaction) {
+    if (!interaction.guild) return true;
+
+    // Skip check for users with Manage Server permission
+    if (interaction.member.permissions.has('ManageGuild')) return true;
+
+    const settings = this.client.db.getGuild(interaction.guild.id).settings;
+    const communityChannel = settings.communityChannel;
+
+    if (communityChannel && interaction.channel.id !== communityChannel) {
+      interaction.reply({
+        embeds: [{
+          color: Colors.ERROR,
+          description: `Community commands can only be used in <#${communityChannel}>.`
+        }],
+        flags: MessageFlags.Ephemeral
+      });
+      return false;
+    }
+
+    return true;
+  }
+
+  async handleCommunitySettings(interaction) {
+    const sub = interaction.options.getSubcommand();
+
+    if (sub === 'setchannel') {
+      if (!interaction.member.permissions.has('ManageGuild')) {
+        return interaction.reply({
+          embeds: [new EmbedBuilder().setColor(Colors.ERROR).setDescription('You need Manage Server permission.')],
+          flags: MessageFlags.Ephemeral
+        });
+      }
+
+      const channel = interaction.options.getChannel('channel');
+
+      if (!channel) {
+        this.client.db.setSetting(interaction.guild.id, 'communityChannel', null);
+        return interaction.reply({
+          embeds: [new EmbedBuilder()
+            .setColor(Colors.SUCCESS)
+            .setTitle('Channel Restriction Removed')
+            .setDescription('Community commands can now be used in any channel.')
+          ]
+        });
+      }
+
+      this.client.db.setSetting(interaction.guild.id, 'communityChannel', channel.id);
+      await interaction.reply({
+        embeds: [new EmbedBuilder()
+          .setColor(Colors.SUCCESS)
+          .setTitle('Channel Restriction Set')
+          .setDescription(`Community commands can now only be used in ${channel}.`)
+        ]
+      });
     }
   }
 
