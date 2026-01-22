@@ -53,18 +53,6 @@ export default {
     )
     .addSubcommand(sub =>
       sub
-        .setName('logchannel')
-        .setDescription('Set the log channel')
-        .addChannelOption(opt =>
-          opt
-            .setName('channel')
-            .setDescription('The log channel')
-            .addChannelTypes(ChannelType.GuildText)
-            .setRequired(true)
-        )
-    )
-    .addSubcommand(sub =>
-      sub
         .setName('notifications')
         .setDescription('Configure notification channels')
         .addStringOption(opt =>
@@ -272,15 +260,6 @@ export default {
           }
         }
         break;
-      }
-
-      case 'logchannel': {
-        const channel = interaction.options.getChannel('channel');
-        client.db.setSetting(guildId, 'logChannel', channel.id);
-
-        return interaction.reply({
-          embeds: [successEmbed(`Log channel set to ${channel}.`)]
-        });
       }
 
       case 'notifications': {
@@ -568,11 +547,6 @@ async function showConfig(interaction, client) {
     .addFields(
       { name: 'Prefix', value: `\`${prefix}\``, inline: true },
       {
-        name: 'Log Channel',
-        value: settings.logChannel ? `<#${settings.logChannel}>` : 'Not set',
-        inline: true
-      },
-      {
         name: 'Notifications',
         value: formatNotifications(settings),
         inline: true
@@ -641,12 +615,12 @@ async function showConfigMenu(message, client) {
     .setDescription('Use slash commands to configure the bot:\n' +
       '`/config view` - View current settings\n' +
       '`/config role <type> <role>` - Configure roles (admin/mod/mute/member)\n' +
-      '`/config logchannel <channel>` - Set log channel\n' +
       '`/config notifications <type> [channel]` - Set notification channels\n' +
       '`/config channels <category> [channel]` - Restrict commands to channels\n' +
       '`/config autorole [role]` - Set auto-role for new members\n' +
       '`/config autopunish <action> <warnings>` - Set auto-punishment thresholds\n' +
-      '`/config toggle <module>` - Toggle modules');
+      '`/config toggle <module>` - Toggle modules\n' +
+      '`/logs channels <type> [channel]` - Configure log channels');
 
   await message.reply({ embeds: [embed] });
 }
