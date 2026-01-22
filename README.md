@@ -20,6 +20,7 @@ A feature-rich, modular Discord bot combining the best of MEE6 and RedBot with e
 - **Database Integration** - Persistent data storage using SQLite
 - **Comprehensive Logging** - Track all bot activities and errors
 - **Permission System** - Fine-grained control over command access
+- **Channel Restrictions** - Limit command categories to specific channels
 
 ### Command Categories
 
@@ -76,6 +77,7 @@ A feature-rich, modular Discord bot combining the best of MEE6 and RedBot with e
 - Bot configuration
 - Command prefix management
 - Plugin management
+- Channel restrictions per category
 - Eval command (owner only)
 - Reload commands
 - View logs
@@ -126,6 +128,7 @@ A feature-rich, modular Discord bot combining the best of MEE6 and RedBot with e
 - **Development Timeline** - Hytale's development history
 - **Soundtrack Info** - Music details by Oscar Garvin
 - **Concept Art Gallery** - Browse official Hytale art
+- **Channel Restrictions** - `/hytale setchannel` to limit commands
 
 **Factions included:** Kweebecs, Ferans, Trorks, Scaraks, Outlanders, Slothians, Fauns, Klops
 
@@ -139,6 +142,7 @@ A feature-rich, modular Discord bot combining the best of MEE6 and RedBot with e
 - **Time Capsules** - Send messages to the future
 - **Prediction Market** - Create and bet on community predictions
 - **Boss Raids** - Cooperative server-wide boss battles
+- **Channel Restrictions** - `/community setchannel` to limit commands
 
 **RPG Classes:** Warrior, Mage, Rogue, Cleric
 
@@ -305,6 +309,7 @@ HyVornBot/
 ## Recent Updates
 
 ### Latest Changes
+- ✅ Added channel restrictions - limit commands to specific channels
 - ✅ Added Community plugin with RPG, pets, cards, and social features
 - ✅ Added comprehensive Hytale community plugin with wiki-accurate faction data
 - ✅ Configurable bot name and owner ID via config.json
@@ -314,6 +319,7 @@ HyVornBot/
 - ✅ Improved bot stability - no more crashes from interaction timeouts
 
 ### Features Added
+- 🔒 Channel restrictions per category (`/config channels`)
 - 🎭 Community plugin with RPG adventures, pets, cards, achievements, and more
 - 🌍 Hytale plugin with news, lore, trivia, faction roles, and more
 - 🎂 Birthday tracking with automatic announcements
